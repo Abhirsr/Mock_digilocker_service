@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DigiLocker | Consent Request</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="glass-container">
+    <div class="header">
+      <div class="logo">
+        <span class="digi">Digi</span><span class="locker">Locker</span>
+      </div>
+      <p class="subtitle">Consent Request</p>
+    </div>
+
+    <div class="flow-box">
+      <div class="service-logo-placeholder">M</div>
+      <p class="service-text"><strong>Mock API Service</strong> is requesting access to your DigiLocker documents.</p>
+    </div>
+
+    <div class="permission-list">
+      <div class="permission-item">
+        <span class="check">✔</span>
+        <p>Aadhaar Card (UIDAI)</p>
+      </div>
+      <div class="permission-item">
+        <span class="check">✔</span>
+        <p>PAN Card (Income Tax Dept)</p>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button id="authorize-btn" class="primary-btn">Allow Access</button>
+      <button id="deny-btn" class="secondary-btn">Deny</button>
+    </div>
+
+    <div class="footer">
+      <p>Securely verified by DigiLocker</p>
+      <div class="footer-logos">
+        <span>G20</span>
+        <span>Digital India</span>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

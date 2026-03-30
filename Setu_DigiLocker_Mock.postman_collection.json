@@ -1,0 +1,129 @@
+{
+	"info": {
+		"_postman_id": "8b9e2c4d-5f6a-4d7b-8c9e-1a2b3c4d5e6f",
+		"name": "Setu DigiLocker Mock API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "1. Create Session (OKYC)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = pm.response.json();",
+							"if (jsonData.id) {",
+							"    pm.environment.set(\"session_id\", jsonData.id);",
+							"    pm.environment.set(\"auth_url\", jsonData.url);",
+							"    console.log(\"Session ID saved: \" + jsonData.id);",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"redirectUrl\": \"https://example.com/callback\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/api/okyc/sessions",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"okyc",
+						"sessions"
+					]
+				},
+				"description": "Initializes a new DigiLocker session. Returns a session ID and an authorization URL."
+			},
+			"response": []
+		},
+		{
+			"name": "2. Get Session Status",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/okyc/sessions/{{session_id}}",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"okyc",
+						"sessions",
+						"{{session_id}}"
+					]
+				},
+				"description": "Checks the status of the session. Check if it is 'authenticated' after completing the UI flow."
+			},
+			"response": []
+		},
+		{
+			"name": "3. Get Aadhaar Data",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/okyc/sessions/{{session_id}}/aadhaar",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"okyc",
+						"sessions",
+						"{{session_id}}",
+						"aadhaar"
+					]
+				},
+				"description": "Fetches mock Aadhaar data once the session is authenticated."
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:3000",
+			"type": "string"
+		},
+		{
+			"key": "session_id",
+			"value": "",
+			"type": "string"
+		}
+	]
+}
