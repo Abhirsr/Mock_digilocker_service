@@ -9,6 +9,16 @@ const PORT = process.env.PORT || 3000;
 // Enable Cross-Origin Resource Sharing (CORS) so your frontend can call this API
 app.use(cors());
 
+// ===== GLOBAL REQUEST LOGGER =====
+// Logs EVERY request that hits this mock server so you can verify what is being received
+app.use((req, res, next) => {
+  console.log('\n--------------------------------------------');
+  console.log(`[REQUEST] ${req.method} ${req.url}`);
+  console.log(`[BODY]    ${JSON.stringify(req.body)}`);
+  console.log('--------------------------------------------');
+  next();
+});
+
 // Parse incoming JSON request bodies automatically
 app.use(express.json());
 
@@ -48,7 +58,12 @@ app.post('/api/okyc/sessions', (req, res) => {
     validity: session.validity // Session expiry timestamp
   });
 
-  console.log(`[Session Created] ID: ${session.id}, Redirect: ${redirectUrl}`);
+  console.log(`✅ [Session Created]`);
+  console.log(`   Session ID  : ${session.id}`);
+  console.log(`   redirectUrl : ${redirectUrl}`);
+  console.log(`   Auth URL    : ${session.url}`);
+  console.log(`   Expires     : ${session.validity}`);
+  console.log(`   (Share the Auth URL above with the user's browser)`);
   res.json(session);
 });
 
@@ -67,6 +82,7 @@ app.get('/api/okyc/sessions/:id', (req, res) => {
     return res.status(404).json({ error: "Session not found" });
   }
 
+  console.log(`🔍 [Status Check] Session: ${id} => Status: ${session.status}`);
   // Returns the status wrapped in a Setu-compatible 'context' object
   res.json(getStatusResponse(id, session.status));
 });
@@ -115,7 +131,8 @@ app.post('/api/okyc/sessions/:id/authorize', (req, res) => {
   session.status = 'authenticated';
   sessions.set(id, session);
 
-  console.log(`[Session Authorized] ID: ${id}`);
+  console.log(`✅ [Session Authorized] ID: ${id}`);
+  console.log(`   Redirecting user to: ${session.redirectUrl}`);
   res.json({ success: true, redirectUrl: session.redirectUrl });
 });
 
