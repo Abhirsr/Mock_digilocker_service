@@ -113,10 +113,10 @@ app.get('/api/okyc/sessions/:id/aadhaar', (req, res) => {
     });
   }
 
-  // If session was marked as failure simulation, return a non-complete status
+  // If session was marked as failure simulation, return 401 matching Setu's error format
   if (session.simulateFailure) {
-    console.log(`❌ [Failure Simulated] Returning failed status for session: ${id}`);
-    return res.json(getFailureResponse(id));
+    console.log(`❌ [Failure Simulated] Returning 401 for session: ${id}`);
+    return res.status(401).json(getFailureResponse());
   }
 
   // Returns a perfectly formatted Aadhaar response block, using form data if available

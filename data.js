@@ -24,7 +24,7 @@ const toIST = (date) => {
  * @param {string} baseUrl - Our server's base URL (e.g., http://localhost:3000).
  * @returns {Object} - A Setu-compatible session object.
  */
-const createSessionResponse = (redirectUrl, baseUrl) => {
+const createSessionResponse = (_redirectUrl, baseUrl) => {
   const sessionId = uuidv4();
   return {
     id: sessionId,
@@ -107,11 +107,13 @@ const getAadhaarResponse = (sessionId, userData) => {
  * Returns a failure response matching what Setu sends when DigiLocker fails.
  * status must be anything other than "complete" — backend checks equalsIgnoreCase("complete").
  */
-const getFailureResponse = (sessionId) => {
+const getFailureResponse = () => {
   return {
-    id: sessionId,
-    status: "failed",
-    message: "User denied access or DigiLocker verification failed"
+    error: {
+      code: "user_not_authenticated",
+      detail: "User is not authenticated to access this resource",
+      traceId: makeTraceId()
+    }
   };
 };
 
