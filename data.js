@@ -4,6 +4,19 @@
  * expected by applications integrated with Setu.
  */
 const { v4: uuidv4 } = require('uuid');
+const crypto = require('crypto');
+
+// Returns a Setu-style traceId: "1-<hex unix seconds>-<random 12 bytes hex>"
+const makeTraceId = () =>
+  `1-${Math.floor(Date.now() / 1000).toString(16)}-${crypto.randomBytes(12).toString('hex')}`;
+
+// Returns an ISO-8601 timestamp with IST offset (+05:30)
+const toIST = (date) => {
+  const offsetMs = 5.5 * 60 * 60 * 1000;
+  const ist = new Date(date.getTime() + offsetMs);
+  const iso = ist.toISOString().replace('Z', '+05:30');
+  return iso;
+};
 
 /**
  * Creates the initial session response.
@@ -12,12 +25,13 @@ const { v4: uuidv4 } = require('uuid');
  * @returns {Object} - A Setu-compatible session object.
  */
 const createSessionResponse = (redirectUrl, baseUrl) => {
-  const sessionId = uuidv4(); // Generate a unique V4 UUID for the session
+  const sessionId = uuidv4();
   return {
     id: sessionId,
-    url: `${baseUrl}/auth.html?id=${sessionId}`, // The link we send the user to
     status: "unauthenticated",
-    validity: new Date(Date.now() + 30 * 60 * 1000).toISOString() // Valid for 30 minutes
+    url: `${baseUrl}/auth.html?id=${sessionId}`,
+    validUpto: toIST(new Date(Date.now() + 30 * 60 * 1000)),
+    traceId: makeTraceId()
   };
 };
 

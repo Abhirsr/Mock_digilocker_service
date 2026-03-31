@@ -104,7 +104,13 @@ app.get('/api/okyc/sessions/:id/aadhaar', (req, res) => {
 
   // Prevent data retrieval if the user hasn't physically clicked "Allow Access" yet
   if (session.status !== 'authenticated') {
-    return res.status(403).json({ error: "Session not authenticated yet" });
+    return res.status(401).json({
+      error: {
+        code: "user_not_authenticated",
+        detail: "User is not authenticated to access this resource",
+        traceId: `1-${Date.now().toString(16)}-${require('crypto').randomBytes(12).toString('hex')}`
+      }
+    });
   }
 
   // If session was marked as failure simulation, return a non-complete status
