@@ -10,11 +10,148 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-  <div class="glass-container">
+
+  <!-- ===== STEP 1: DATA ENTRY FORM ===== -->
+  <div class="glass-container" id="step-form">
     <div class="header">
-      <div class="logo">
-        <span class="digi">Digi</span><span class="locker">Locker</span>
+      <div class="logo"><span class="digi">Digi</span><span class="locker">Locker</span></div>
+      <p class="subtitle">Enter Your Details</p>
+    </div>
+
+    <form id="aadhaar-form" novalidate>
+
+      <!-- Photo Upload -->
+      <div class="photo-upload-section">
+        <div class="photo-preview-wrap">
+          <img id="photo-preview" src="" alt="Photo Preview" class="hidden">
+          <span id="photo-placeholder">No photo</span>
+        </div>
+        <label class="upload-btn" for="photo-input">Upload Photo</label>
+        <input type="file" id="photo-input" accept="image/*" title="Upload your photo" class="hidden">
       </div>
+
+      <div class="form-section-title">Personal Information</div>
+
+      <div class="form-group">
+        <label>Full Name</label>
+        <input type="text" id="f-name" placeholder="e.g. John Doe" required>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="f-dob">Date of Birth</label>
+          <input type="date" id="f-dob" title="Date of Birth" required>
+        </div>
+        <div class="form-group">
+          <label for="f-gender">Gender</label>
+          <select id="f-gender" title="Gender" required>
+            <option value="">Select</option>
+            <option value="M">Male</option>
+            <option value="F">Female</option>
+            <option value="T">Transgender</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" id="f-email" placeholder="johndoe@example.com">
+        </div>
+        <div class="form-group">
+          <label>Phone</label>
+          <input type="tel" id="f-phone" placeholder="10-digit number">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Masked Aadhaar Number</label>
+        <input type="text" id="f-masked" placeholder="XXXXXXXX1234" maxlength="12">
+      </div>
+
+      <div class="form-section-title">Address</div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Care Of</label>
+          <input type="text" id="f-careOf" placeholder="S/O Someone">
+        </div>
+        <div class="form-group">
+          <label>House</label>
+          <input type="text" id="f-house" placeholder="House No.">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Street</label>
+          <input type="text" id="f-street" placeholder="Street name">
+        </div>
+        <div class="form-group">
+          <label>Landmark</label>
+          <input type="text" id="f-landmark" placeholder="Near ...">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Locality</label>
+          <input type="text" id="f-locality" placeholder="Locality">
+        </div>
+        <div class="form-group">
+          <label>VTC / City</label>
+          <input type="text" id="f-vtc" placeholder="City">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Sub-District</label>
+          <input type="text" id="f-subDistrict" placeholder="Sub-district">
+        </div>
+        <div class="form-group">
+          <label>District</label>
+          <input type="text" id="f-district" placeholder="District">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>State</label>
+          <input type="text" id="f-state" placeholder="State">
+        </div>
+        <div class="form-group">
+          <label>Post Office</label>
+          <input type="text" id="f-postOffice" placeholder="Post Office">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>PIN Code</label>
+          <input type="text" id="f-pin" placeholder="6-digit PIN" maxlength="6">
+        </div>
+        <div class="form-group">
+          <label>Country</label>
+          <input type="text" id="f-country" placeholder="India" value="India">
+        </div>
+      </div>
+
+      <div class="form-section-title">XML / Document (Optional)</div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>File URL</label>
+          <input type="text" id="f-fileUrl" placeholder="https://...">
+        </div>
+        <div class="form-group">
+          <label>Share Code</label>
+          <input type="text" id="f-shareCode" placeholder="Code">
+        </div>
+      </div>
+
+      <button type="submit" class="primary-btn form-submit-btn">
+        Continue to Consent
+      </button>
+    </form>
+  </div>
+
+  <!-- ===== STEP 2: CONSENT SCREEN ===== -->
+  <div class="glass-container hidden" id="step-consent">
+    <div class="header">
+      <div class="logo"><span class="digi">Digi</span><span class="locker">Locker</span></div>
       <p class="subtitle">Consent Request</p>
     </div>
 
@@ -23,19 +160,26 @@
       <p class="service-text"><strong>Mock API Service</strong> is requesting access to your DigiLocker documents.</p>
     </div>
 
+    <!-- Summary of entered data -->
+    <div class="summary-box">
+      <div class="summary-row">
+        <img id="summary-photo" src="" alt="Your photo" class="hidden summary-photo-img">
+      </div>
+      <div class="summary-row"><span>Name:</span><strong id="s-name">—</strong></div>
+      <div class="summary-row"><span>DOB:</span><strong id="s-dob">—</strong></div>
+      <div class="summary-row"><span>Gender:</span><strong id="s-gender">—</strong></div>
+      <div class="summary-row"><span>Aadhaar:</span><strong id="s-masked">—</strong></div>
+      <div class="summary-row"><span>Address:</span><strong id="s-address">—</strong></div>
+    </div>
+
     <div class="permission-list">
-      <div class="permission-item">
-        <span class="check">✔</span>
-        <p>Aadhaar Card (UIDAI)</p>
-      </div>
-      <div class="permission-item">
-        <span class="check">✔</span>
-        <p>PAN Card (Income Tax Dept)</p>
-      </div>
+      <div class="permission-item"><span class="check">✔</span><p>Aadhaar Card (UIDAI)</p></div>
+      <div class="permission-item"><span class="check">✔</span><p>PAN Card (Income Tax Dept)</p></div>
     </div>
 
     <div class="actions">
       <button id="authorize-btn" class="primary-btn">Allow Access</button>
+      <button id="back-btn" class="secondary-btn">Edit Details</button>
       <button id="deny-btn" class="secondary-btn">Deny</button>
     </div>
 

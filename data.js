@@ -41,44 +41,49 @@ const getStatusResponse = (sessionId, status = "unauthenticated") => {
 /**
  * Creates the final Aadhaar data response.
  * @param {string} sessionId - The session identifier.
+ * @param {Object} [userData] - Optional user-supplied data from the consent form.
  * @returns {Object} - A Setu-compatible Aadhaar data object.
  */
-const getAadhaarResponse = (sessionId) => {
+const getAadhaarResponse = (sessionId, userData) => {
+  const u = userData || {};
+  const addr = u.address || {};
+  const xml  = u.xml    || {};
+
   return {
     id: sessionId,
     status: "complete",
     aadhaar: {
-      name: "John Doe",
-      maskedNumber: "XXXXXXXX1234",
-      dateOfBirth: "1990-01-01",
-      gender: "M",
-      email: "johndoe@mock.com",
-      phone: "9999999999",
-      generatedAt: new Date().toISOString(),
-      photo: "",
+      name:         u.name         || "John Doe",
+      maskedNumber: u.maskedNumber || "XXXXXXXX1234",
+      dateOfBirth:  u.dateOfBirth  || "1990-01-01",
+      gender:       u.gender       || "M",
+      email:        u.email        || "johndoe@mock.com",
+      phone:        u.phone        || "9999999999",
+      generatedAt:  new Date().toISOString(),
+      photo:        u.photo        || "",
       address: {
-        careOf: "S/O Senior Doe",
-        house: "123",
-        street: "Mock Street",
-        landmark: "Near Mock Circle",
-        locality: "Electronic City",
-        vtc: "Bengaluru",
-        subDistrict: "Bengaluru South",
-        district: "Bengaluru Urban",
-        state: "Karnataka",
-        postOffice: "Electronic City PO",
-        pin: "560100",
-        country: "India"
+        careOf:      addr.careOf      || "S/O Senior Doe",
+        house:       addr.house       || "123",
+        street:      addr.street      || "Mock Street",
+        landmark:    addr.landmark    || "Near Mock Circle",
+        locality:    addr.locality    || "Electronic City",
+        vtc:         addr.vtc         || "Bengaluru",
+        subDistrict: addr.subDistrict || "Bengaluru South",
+        district:    addr.district    || "Bengaluru Urban",
+        state:       addr.state       || "Karnataka",
+        postOffice:  addr.postOffice  || "Electronic City PO",
+        pin:         addr.pin         || "560100",
+        country:     addr.country     || "India"
       },
       verified: {
-        email: false,
-        phone: false,
+        email:     false,
+        phone:     false,
         signature: true
       },
       xml: {
-        fileUrl: "",
-        shareCode: "",
-        validUntil: ""
+        fileUrl:    xml.fileUrl    || "",
+        shareCode:  xml.shareCode  || "",
+        validUntil: xml.validUntil || ""
       }
     }
   };

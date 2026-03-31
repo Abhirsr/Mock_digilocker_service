@@ -107,8 +107,8 @@ app.get('/api/okyc/sessions/:id/aadhaar', (req, res) => {
     return res.status(403).json({ error: "Session not authenticated yet" });
   }
 
-  // Returns a perfectly formatted Aadhaar response block
-  res.json(getAadhaarResponse(id));
+  // Returns a perfectly formatted Aadhaar response block, using form data if available
+  res.json(getAadhaarResponse(id, session.userData));
 });
 
 /**
@@ -125,6 +125,11 @@ app.post('/api/okyc/sessions/:id/authorize', (req, res) => {
 
   if (!session) {
     return res.status(404).json({ error: "Session not found" });
+  }
+
+  // Store user-supplied data from the form (if provided)
+  if (req.body && req.body.userData) {
+    session.userData = req.body.userData;
   }
 
   // Transition state from 'unauthenticated' to 'authenticated'
