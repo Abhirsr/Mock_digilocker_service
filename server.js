@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-const { createSessionResponse, getStatusResponse, getAadhaarResponse } = require('./data');
+const { createSessionResponse, getStatusResponse, getAadhaarResponse, getFailureResponse } = require('./data');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -107,6 +107,12 @@ app.get('/api/okyc/sessions/:id/aadhaar', (req, res) => {
     return res.status(403).json({ error: "Session not authenticated yet" });
   }
 
+  // If session was marked as failure simulation, return a non-complete status
+  if (session.simulateFailure) {
+    console.log(`❌ [Failure Simulated] Returning failed status for session: ${id}`);
+    return res.json(getFailureResponse(id));
+  }
+
   // Returns a perfectly formatted Aadhaar response block, using form data if available
   res.json(getAadhaarResponse(id, session.userData));
 });
@@ -132,11 +138,14 @@ app.post('/api/okyc/sessions/:id/authorize', (req, res) => {
     session.userData = req.body.userData;
   }
 
+  // Store failure simulation flag
+  session.simulateFailure = req.body && req.body.simulateFailure === true;
+
   // Transition state from 'unauthenticated' to 'authenticated'
   session.status = 'authenticated';
   sessions.set(id, session);
 
-  console.log(`✅ [Session Authorized] ID: ${id}`);
+  console.log(`${session.simulateFailure ? '❌ [Failure Simulation]' : '✅ [Session Authorized]'} ID: ${id}`);
   console.log(`   Redirecting user to: ${session.redirectUrl}`);
   res.json({ success: true, redirectUrl: session.redirectUrl });
 });

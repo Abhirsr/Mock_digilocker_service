@@ -42,40 +42,76 @@ document.getElementById('photo-input').addEventListener('change', function () {
 });
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
-const val     = (id) => (document.getElementById(id)?.value || '').trim();
-const showLoader = () => document.getElementById('loader-overlay').classList.add('active');
-const setBtn  = (loading) => {
+const val        = (id) => (document.getElementById(id)?.value || '').trim();
+const showLoader = ()   => document.getElementById('loader-overlay').classList.add('active');
+
+const setBtn = (loading) => {
   const btn     = document.getElementById('authorize-btn');
   const spinner = document.getElementById('btn-spinner');
   const label   = document.getElementById('btn-label');
-  btn.disabled         = loading;
+  btn.disabled          = loading;
   spinner.style.display = loading ? 'block' : 'none';
-  label.textContent    = loading ? 'Authorizing...' : 'Allow Access';
+  label.textContent     = loading ? 'Authorizing...' : '✅ Simulate Success';
+  document.getElementById('failure-btn').disabled = loading;
 };
 
-// ── Authorize ─────────────────────────────────────────────────────────────────
-document.getElementById('authorize-btn').addEventListener('click', async () => {
+const setFailBtn = (loading) => {
+  const btn     = document.getElementById('failure-btn');
+  const spinner = document.getElementById('fail-spinner');
+  const label   = document.getElementById('fail-label');
+  btn.disabled          = loading;
+  spinner.style.display = loading ? 'block' : 'none';
+  label.textContent     = loading ? 'Simulating...' : '❌ Simulate Failure';
+  document.getElementById('authorize-btn').disabled = loading;
+};
 
-  // Validation
-  if (!val('f-name'))     { alert('Full Name is required.');           return; }
+// ── Shared: hit authorize endpoint then redirect ───────────────────────────────
+async function authorize(payload, setLoading, resetLoading) {
+  setLoading(true);
+  try {
+    const response = await fetch(`/api/okyc/sessions/${sessionId}/authorize`, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify(payload)
+    });
+    const data = await response.json();
+    if (data.success) {
+      showLoader();
+      const finalUrl = new URL(data.redirectUrl);
+      finalUrl.searchParams.append('success', 'true');
+      finalUrl.searchParams.append('id', sessionId);
+      finalUrl.searchParams.append('scope', 'ADHAR,PANCR');
+      window.location.href = finalUrl.toString();
+    } else {
+      alert('Authorization failed on the server.');
+      resetLoading();
+    }
+  } catch (error) {
+    console.error('Authorization error:', error);
+    alert('Could not reach the mock server.');
+    resetLoading();
+  }
+}
+
+// ── Simulate Success ──────────────────────────────────────────────────────────
+document.getElementById('authorize-btn').addEventListener('click', async () => {
+  if (!val('f-name'))     { alert('Full Name is required.');  return; }
   if (!val('f-dob-day') || !val('f-dob-month') || !val('f-dob-year')) {
     alert('Date of Birth is required.'); return;
   }
-  if (!val('f-district')) { alert('District is required.');            return; }
-  if (!val('f-state'))    { alert('State is required.');               return; }
+  if (!val('f-district')) { alert('District is required.');   return; }
+  if (!val('f-state'))    { alert('State is required.');      return; }
   if (val('f-pin') && val('f-pin').length !== 6) {
-    alert('PIN Code must be 6 digits.');  return;
+    alert('PIN Code must be 6 digits.'); return;
   }
 
   const dateOfBirth = `${val('f-dob-year')}-${val('f-dob-month')}-${val('f-dob-day')}`;
 
-  setBtn(true);
-
-  const payload = {
+  await authorize({
     userData: {
       name:         val('f-name'),
       maskedNumber: val('f-masked'),
-      dateOfBirth:  dateOfBirth,
+      dateOfBirth,
       gender:       val('f-gender'),
       email:        '',
       phone:        val('f-phone'),
@@ -96,31 +132,17 @@ document.getElementById('authorize-btn').addEventListener('click', async () => {
       },
       xml: { fileUrl: '', shareCode: '', validUntil: '' }
     }
-  };
+  }, setBtn, () => setBtn(false));
+});
 
-  try {
-    const response = await fetch(`/api/okyc/sessions/${sessionId}/authorize`, {
-      method:  'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify(payload)
-    });
-
-    const data = await response.json();
-
-    if (data.success) {
-      showLoader(); // show overlay while redirecting
-      const finalUrl = new URL(data.redirectUrl);
-      finalUrl.searchParams.append('success', 'true');
-      finalUrl.searchParams.append('id', sessionId);
-      finalUrl.searchParams.append('scope', 'ADHAR,PANCR');
-      window.location.href = finalUrl.toString();
-    } else {
-      alert('Authorization failed on the server.');
-      setBtn(false);
-    }
-  } catch (error) {
-    console.error('Authorization error:', error);
-    alert('Could not reach the mock server.');
-    setBtn(false);
-  }
+// ── Simulate Failure ──────────────────────────────────────────────────────────
+// No form data needed — just marks the session as failed.
+// The aadhaar endpoint will return { status: "failed" }, which triggers
+// the backend error path → redirects to contact-admin / kyc-selection.
+document.getElementById('failure-btn').addEventListener('click', async () => {
+  await authorize(
+    { simulateFailure: true },
+    setFailBtn,
+    () => setFailBtn(false)
+  );
 });

@@ -163,6 +163,25 @@
     .btn-authorize:hover:not(:disabled) { opacity: 0.9; transform: translateY(-1px); }
     .btn-authorize:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 
+    .btn-failure {
+      padding: 15px;
+      background: linear-gradient(135deg, #8b0000, #c0392b);
+      color: #fff;
+      border: none;
+      border-radius: 11px;
+      font-size: 15px;
+      font-weight: 700;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    .btn-failure:hover:not(:disabled) { opacity: 0.9; transform: translateY(-1px); }
+    .btn-failure:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
     /* Spinner */
     .spinner {
       width: 18px; height: 18px;
@@ -411,10 +430,16 @@
         </div>
       </div>
 
-      <button class="btn-authorize" id="authorize-btn">
-        <span class="spinner" id="btn-spinner"></span>
-        <span id="btn-label">Allow Access</span>
-      </button>
+      <div style="display:flex;gap:10px;margin-top:22px;">
+        <button class="btn-authorize" id="authorize-btn" style="flex:1">
+          <span class="spinner" id="btn-spinner"></span>
+          <span id="btn-label">✅ Simulate Success</span>
+        </button>
+        <button class="btn-failure" id="failure-btn" style="flex:1">
+          <span class="spinner" id="fail-spinner"></span>
+          <span id="fail-label">❌ Simulate Failure</span>
+        </button>
+      </div>
 
     </div>
 

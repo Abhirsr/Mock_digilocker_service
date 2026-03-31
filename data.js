@@ -89,8 +89,21 @@ const getAadhaarResponse = (sessionId, userData) => {
   };
 };
 
+/**
+ * Returns a failure response matching what Setu sends when DigiLocker fails.
+ * status must be anything other than "complete" — backend checks equalsIgnoreCase("complete").
+ */
+const getFailureResponse = (sessionId) => {
+  return {
+    id: sessionId,
+    status: "failed",
+    message: "User denied access or DigiLocker verification failed"
+  };
+};
+
 module.exports = {
   createSessionResponse,
   getStatusResponse,
-  getAadhaarResponse
+  getAadhaarResponse,
+  getFailureResponse
 };
