@@ -55,7 +55,7 @@ const getAadhaarResponse = (sessionId) => {
       email: "johndoe@mock.com",
       phone: "9999999999",
       generatedAt: new Date().toISOString(),
-      photo: "base64_string_placeholder",
+      photo: "",
       address: {
         careOf: "S/O Senior Doe",
         house: "123",
