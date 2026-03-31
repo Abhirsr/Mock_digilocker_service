@@ -3,193 +3,423 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DigiLocker | Consent Request</title>
-  <link rel="stylesheet" href="style.css">
+  <title>DigiLocker | Consent</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(145deg, #0f2a5e 0%, #0077c2 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 28px 16px 40px;
+    }
+
+    /* ── Card ── */
+    .card {
+      background: #fff;
+      border-radius: 22px;
+      width: 100%;
+      max-width: 500px;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.28);
+      overflow: hidden;
+    }
+
+    /* ── Header ── */
+    .card-header {
+      background: linear-gradient(135deg, #0f2a5e, #0077c2);
+      padding: 22px 24px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .header-icon {
+      width: 46px; height: 46px;
+      background: rgba(255,255,255,0.15);
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 17px; font-weight: 800; color: #fff; letter-spacing: -1px;
+      flex-shrink: 0;
+    }
+    .header-text h1  { font-size: 17px; font-weight: 700; color: #fff; }
+    .header-text p   { font-size: 12px; color: rgba(255,255,255,0.65); margin-top: 2px; }
+
+    /* ── Body ── */
+    .card-body { padding: 24px; }
+
+    /* ── Photo ── */
+    .photo-row {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      background: #f7f9fc;
+      border-radius: 14px;
+      padding: 16px 18px;
+      margin-bottom: 22px;
+      border: 1.5px solid #e8eef5;
+    }
+    .photo-circle {
+      width: 68px; height: 68px;
+      border-radius: 50%;
+      border: 2.5px dashed #c0d0e8;
+      background: #eef2f8;
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden;
+      flex-shrink: 0;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+    .photo-circle:hover { border-color: #0077c2; }
+    .photo-circle img { width: 100%; height: 100%; object-fit: cover; display: none; }
+    .photo-circle .icon { font-size: 26px; }
+    .photo-info h3  { font-size: 13px; font-weight: 600; color: #222; }
+    .photo-info p   { font-size: 12px; color: #888; margin-top: 3px; }
+    .photo-info .upload-btn {
+      display: inline-block;
+      margin-top: 8px;
+      font-size: 12px; font-weight: 600;
+      color: #0077c2;
+      border: 1.5px solid #0077c2;
+      border-radius: 7px;
+      padding: 5px 14px;
+      cursor: pointer;
+      transition: all 0.18s;
+    }
+    .photo-info .upload-btn:hover { background: #0077c2; color: #fff; }
+    input[type="file"] { display: none; }
+
+    /* ── Section label ── */
+    .section-label {
+      font-size: 10.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #0077c2;
+      margin: 20px 0 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: #e8eef5;
+    }
+
+    /* ── Fields ── */
+    .row { display: flex; gap: 12px; margin-bottom: 12px; }
+    .field { display: flex; flex-direction: column; flex: 1; gap: 5px; }
+    .field label { font-size: 11.5px; font-weight: 600; color: #555; }
+
+    .field input, .field select {
+      border: 1.5px solid #e0e7f0;
+      border-radius: 9px;
+      padding: 10px 12px;
+      font-size: 13.5px;
+      font-family: 'Inter', sans-serif;
+      color: #1a1a1a;
+      background: #fafbfd;
+      outline: none;
+      transition: border-color 0.18s, box-shadow 0.18s, background 0.18s;
+      width: 100%;
+    }
+    .field input:focus, .field select:focus {
+      border-color: #0077c2;
+      background: #fff;
+      box-shadow: 0 0 0 3px rgba(0,119,194,0.12);
+    }
+    .field input::placeholder { color: #bbc8d8; }
+    .field select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23888' d='M6 8L0 0h12z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px; }
+
+    /* DOB row – 3 selects */
+    .dob-row { display: flex; gap: 10px; margin-bottom: 12px; }
+    .dob-row .field { flex: 1; }
+
+    /* ── Authorize button ── */
+    .btn-authorize {
+      width: 100%;
+      margin-top: 22px;
+      padding: 15px;
+      background: linear-gradient(135deg, #0f2a5e, #0077c2);
+      color: #fff;
+      border: none;
+      border-radius: 11px;
+      font-size: 15px;
+      font-weight: 700;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    .btn-authorize:hover:not(:disabled) { opacity: 0.9; transform: translateY(-1px); }
+    .btn-authorize:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+    /* Spinner */
+    .spinner {
+      width: 18px; height: 18px;
+      border: 2.5px solid rgba(255,255,255,0.35);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      display: none;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Footer ── */
+    .card-footer {
+      text-align: center;
+      padding: 14px 24px;
+      border-top: 1px solid #f0f4f8;
+      font-size: 11px;
+      color: #aab;
+    }
+
+    /* ── Full-screen loader overlay ── */
+    #loader-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(10, 30, 70, 0.55);
+      backdrop-filter: blur(4px);
+      z-index: 999;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 18px;
+    }
+    #loader-overlay.active { display: flex; }
+    .loader-card {
+      background: #fff;
+      border-radius: 18px;
+      padding: 36px 40px;
+      text-align: center;
+      box-shadow: 0 16px 40px rgba(0,0,0,0.25);
+    }
+    .loader-spinner {
+      width: 48px; height: 48px;
+      border: 4px solid #e0eaf5;
+      border-top-color: #0077c2;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 18px;
+    }
+    .loader-card h3 { font-size: 15px; font-weight: 700; color: #1a1a1a; }
+    .loader-card p  { font-size: 12px; color: #888; margin-top: 6px; }
+
+    /* ── Mobile ── */
+    @media (max-width: 480px) {
+      body { padding: 0; align-items: stretch; }
+
+      .card { border-radius: 0; box-shadow: none; min-height: 100vh; }
+
+      .card-header { padding: 18px 16px; }
+      .header-icon { width: 40px; height: 40px; font-size: 14px; }
+      .header-text h1 { font-size: 15px; }
+
+      .card-body { padding: 16px; }
+
+      /* Stack all two-column rows */
+      .row { flex-direction: column; gap: 10px; }
+
+      /* DOB — stack vertically too */
+      .dob-row { flex-direction: column; gap: 10px; }
+
+      .photo-row { flex-direction: column; align-items: flex-start; gap: 12px; padding: 14px; }
+
+      .section-label { margin: 16px 0 10px; }
+
+      .btn-authorize { padding: 14px; font-size: 14px; margin-top: 18px; }
+
+      .loader-card { padding: 28px 24px; }
+    }
+
+    @media (min-width: 481px) and (max-width: 600px) {
+      body { padding: 16px 12px 32px; }
+      .card-body { padding: 18px; }
+      /* DOB - keep 3 across but reduce padding */
+      .field input, .field select { padding: 9px 10px; font-size: 13px; }
+    }
+  </style>
 </head>
 <body>
 
-  <!-- ===== STEP 1: DATA ENTRY FORM ===== -->
-  <div class="glass-container" id="step-form">
-    <div class="header">
-      <div class="logo"><span class="digi">Digi</span><span class="locker">Locker</span></div>
-      <p class="subtitle">Enter Your Details</p>
+  <!-- Full-screen loader -->
+  <div id="loader-overlay">
+    <div class="loader-card">
+      <div class="loader-spinner"></div>
+      <h3>Authorizing with DigiLocker</h3>
+      <p>Please wait, redirecting you back...</p>
+    </div>
+  </div>
+
+  <div class="card">
+
+    <!-- Header -->
+    <div class="card-header">
+      <div class="header-icon">DL</div>
+      <div class="header-text">
+        <h1>DigiLocker</h1>
+        <p>Mock Consent &nbsp;·&nbsp; Enter test data to proceed</p>
+      </div>
     </div>
 
-    <form id="aadhaar-form" novalidate>
+    <div class="card-body">
 
       <!-- Photo Upload -->
-      <div class="photo-upload-section">
-        <div class="photo-preview-wrap">
-          <img id="photo-preview" src="" alt="Photo Preview" class="hidden">
-          <span id="photo-placeholder">No photo</span>
+      <div class="photo-row">
+        <div class="photo-circle" id="photo-circle" onclick="document.getElementById('photo-input').click()">
+          <img id="photo-preview" src="" alt="Photo">
+          <span class="icon" id="photo-icon">🪪</span>
         </div>
-        <label class="upload-btn" for="photo-input">Upload Photo</label>
-        <input type="file" id="photo-input" accept="image/*" title="Upload your photo" class="hidden">
+        <div class="photo-info">
+          <h3>Profile Photo <span style="font-weight:400;color:#aaa">(optional)</span></h3>
+          <p>Upload a photo to include in the Aadhaar response</p>
+          <label class="upload-btn" for="photo-input">Choose Photo</label>
+        </div>
+        <input type="file" id="photo-input" accept="image/*">
       </div>
 
-      <div class="form-section-title">Personal Information</div>
+      <!-- Personal Details -->
+      <div class="section-label">Personal Details</div>
 
-      <div class="form-group">
-        <label>Full Name</label>
-        <input type="text" id="f-name" placeholder="e.g. John Doe" required>
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label for="f-dob">Date of Birth</label>
-          <input type="date" id="f-dob" title="Date of Birth" required>
+      <div class="row">
+        <div class="field" style="flex:2">
+          <label>Full Name</label>
+          <input type="text" id="f-name" placeholder="e.g. John Doe">
         </div>
-        <div class="form-group">
-          <label for="f-gender">Gender</label>
-          <select id="f-gender" title="Gender" required>
-            <option value="">Select</option>
+        <div class="field">
+          <label>Gender</label>
+          <select id="f-gender">
             <option value="M">Male</option>
             <option value="F">Female</option>
             <option value="T">Transgender</option>
           </select>
         </div>
       </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label>Email</label>
-          <input type="email" id="f-email" placeholder="johndoe@example.com">
+
+      <!-- DOB – 3 dropdowns -->
+      <div class="field" style="margin-bottom:5px"><label>Date of Birth</label></div>
+      <div class="dob-row">
+        <div class="field">
+          <select id="f-dob-day"><option value="">Day</option></select>
         </div>
-        <div class="form-group">
+        <div class="field" style="flex:1.4">
+          <select id="f-dob-month">
+            <option value="">Month</option>
+            <option value="01">January</option><option value="02">February</option>
+            <option value="03">March</option><option value="04">April</option>
+            <option value="05">May</option><option value="06">June</option>
+            <option value="07">July</option><option value="08">August</option>
+            <option value="09">September</option><option value="10">October</option>
+            <option value="11">November</option><option value="12">December</option>
+          </select>
+        </div>
+        <div class="field">
+          <select id="f-dob-year"><option value="">Year</option></select>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="field">
+          <label>Masked Aadhaar</label>
+          <input type="text" id="f-masked" placeholder="XXXXXXXX1234" maxlength="12">
+        </div>
+        <div class="field">
           <label>Phone</label>
-          <input type="tel" id="f-phone" placeholder="10-digit number">
+          <input type="tel" id="f-phone" placeholder="9999999999" maxlength="10">
         </div>
-      </div>
-      <div class="form-group">
-        <label>Masked Aadhaar Number</label>
-        <input type="text" id="f-masked" placeholder="XXXXXXXX1234" maxlength="12">
       </div>
 
-      <div class="form-section-title">Address</div>
-
-      <div class="form-row">
-        <div class="form-group">
-          <label>Care Of</label>
-          <input type="text" id="f-careOf" placeholder="S/O Someone">
-        </div>
-        <div class="form-group">
-          <label>House</label>
-          <input type="text" id="f-house" placeholder="House No.">
+      <div class="row">
+        <div class="field">
+          <label>Care Of (S/O, W/O, D/O)</label>
+          <input type="text" id="f-careOf" placeholder="S/O Father Name">
         </div>
       </div>
-      <div class="form-row">
-        <div class="form-group">
+
+      <!-- Address -->
+      <div class="section-label">Address</div>
+
+      <div class="row">
+        <div class="field">
+          <label>House / Flat No.</label>
+          <input type="text" id="f-house" placeholder="123">
+        </div>
+        <div class="field" style="flex:2">
           <label>Street</label>
-          <input type="text" id="f-street" placeholder="Street name">
+          <input type="text" id="f-street" placeholder="Main Street">
         </div>
-        <div class="form-group">
+      </div>
+
+      <div class="row">
+        <div class="field">
           <label>Landmark</label>
-          <input type="text" id="f-landmark" placeholder="Near ...">
+          <input type="text" id="f-landmark" placeholder="Near Park">
         </div>
-      </div>
-      <div class="form-row">
-        <div class="form-group">
+        <div class="field">
           <label>Locality</label>
-          <input type="text" id="f-locality" placeholder="Locality">
-        </div>
-        <div class="form-group">
-          <label>VTC / City</label>
-          <input type="text" id="f-vtc" placeholder="City">
+          <input type="text" id="f-locality" placeholder="Electronic City">
         </div>
       </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label>Sub-District</label>
-          <input type="text" id="f-subDistrict" placeholder="Sub-district">
+
+      <div class="row">
+        <div class="field">
+          <label>VTC / Town</label>
+          <input type="text" id="f-vtc" placeholder="Bengaluru">
         </div>
-        <div class="form-group">
+        <div class="field">
+          <label>Sub District</label>
+          <input type="text" id="f-subDistrict" placeholder="South">
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="field">
           <label>District</label>
-          <input type="text" id="f-district" placeholder="District">
+          <input type="text" id="f-district" placeholder="Bengaluru Urban">
         </div>
-      </div>
-      <div class="form-row">
-        <div class="form-group">
+        <div class="field">
           <label>State</label>
-          <input type="text" id="f-state" placeholder="State">
+          <input type="text" id="f-state" placeholder="Karnataka">
         </div>
-        <div class="form-group">
+      </div>
+
+      <div class="row">
+        <div class="field">
           <label>Post Office</label>
-          <input type="text" id="f-postOffice" placeholder="Post Office">
+          <input type="text" id="f-postOffice" placeholder="EC Post Office">
         </div>
-      </div>
-      <div class="form-row">
-        <div class="form-group">
+        <div class="field">
           <label>PIN Code</label>
-          <input type="text" id="f-pin" placeholder="6-digit PIN" maxlength="6">
+          <input type="text" id="f-pin" placeholder="560100" maxlength="6">
         </div>
-        <div class="form-group">
+      </div>
+
+      <div class="row">
+        <div class="field">
           <label>Country</label>
-          <input type="text" id="f-country" placeholder="India" value="India">
+          <input type="text" id="f-country" value="India">
         </div>
       </div>
 
-      <div class="form-section-title">XML / Document (Optional)</div>
-
-      <div class="form-row">
-        <div class="form-group">
-          <label>File URL</label>
-          <input type="text" id="f-fileUrl" placeholder="https://...">
-        </div>
-        <div class="form-group">
-          <label>Share Code</label>
-          <input type="text" id="f-shareCode" placeholder="Code">
-        </div>
-      </div>
-
-      <button type="submit" class="primary-btn form-submit-btn">
-        Continue to Consent
+      <button class="btn-authorize" id="authorize-btn">
+        <span class="spinner" id="btn-spinner"></span>
+        <span id="btn-label">Allow Access</span>
       </button>
-    </form>
-  </div>
 
-  <!-- ===== STEP 2: CONSENT SCREEN ===== -->
-  <div class="glass-container hidden" id="step-consent">
-    <div class="header">
-      <div class="logo"><span class="digi">Digi</span><span class="locker">Locker</span></div>
-      <p class="subtitle">Consent Request</p>
     </div>
 
-    <div class="flow-box">
-      <div class="service-logo-placeholder">M</div>
-      <p class="service-text"><strong>Mock API Service</strong> is requesting access to your DigiLocker documents.</p>
-    </div>
+    <div class="card-footer">🔒 Secured by DigiLocker &nbsp;·&nbsp; Government of India</div>
 
-    <!-- Summary of entered data -->
-    <div class="summary-box">
-      <div class="summary-row">
-        <img id="summary-photo" src="" alt="Your photo" class="hidden summary-photo-img">
-      </div>
-      <div class="summary-row"><span>Name:</span><strong id="s-name">—</strong></div>
-      <div class="summary-row"><span>DOB:</span><strong id="s-dob">—</strong></div>
-      <div class="summary-row"><span>Gender:</span><strong id="s-gender">—</strong></div>
-      <div class="summary-row"><span>Aadhaar:</span><strong id="s-masked">—</strong></div>
-      <div class="summary-row"><span>Address:</span><strong id="s-address">—</strong></div>
-    </div>
-
-    <div class="permission-list">
-      <div class="permission-item"><span class="check">✔</span><p>Aadhaar Card (UIDAI)</p></div>
-      <div class="permission-item"><span class="check">✔</span><p>PAN Card (Income Tax Dept)</p></div>
-    </div>
-
-    <div class="actions">
-      <button id="authorize-btn" class="primary-btn">Allow Access</button>
-      <button id="back-btn" class="secondary-btn">Edit Details</button>
-      <button id="deny-btn" class="secondary-btn">Deny</button>
-    </div>
-
-    <div class="footer">
-      <p>Securely verified by DigiLocker</p>
-      <div class="footer-logos">
-        <span>G20</span>
-        <span>Digital India</span>
-      </div>
-    </div>
   </div>
 
   <script src="app.js"></script>

@@ -1,9 +1,3 @@
-/**
- * MOCK DIGILOCKER FRONTEND LOGIC
- * Step 1 – User fills in their Aadhaar details + photo
- * Step 2 – Consent screen shows a summary, user clicks Allow Access
- */
-
 const urlParams = new URLSearchParams(window.location.search);
 const sessionId = urlParams.get('id');
 
@@ -11,89 +5,81 @@ if (!sessionId) {
   alert('Invalid session. Please start the flow from the API first.');
 }
 
-// ── DOM references ────────────────────────────────────────────────────────────
-const stepForm    = document.getElementById('step-form');
-const stepConsent = document.getElementById('step-consent');
-const aadhaarForm = document.getElementById('aadhaar-form');
+// ── Populate DOB dropdowns ────────────────────────────────────────────────────
+(function () {
+  const dayEl  = document.getElementById('f-dob-day');
+  const yearEl = document.getElementById('f-dob-year');
+  for (let d = 1; d <= 31; d++) {
+    const o = document.createElement('option');
+    o.value = String(d).padStart(2, '0');
+    o.textContent = d;
+    dayEl.appendChild(o);
+  }
+  const currentYear = new Date().getFullYear();
+  for (let y = currentYear; y >= 1924; y--) {
+    const o = document.createElement('option');
+    o.value = y;
+    o.textContent = y;
+    yearEl.appendChild(o);
+  }
+})();
 
-const photoInput    = document.getElementById('photo-input');
-const photoPreview  = document.getElementById('photo-preview');
-const photoPlaceholder = document.getElementById('photo-placeholder');
-
-const authorizeBtn = document.getElementById('authorize-btn');
-const backBtn      = document.getElementById('back-btn');
-const denyBtn      = document.getElementById('deny-btn');
-
-// Holds the base64 photo string once selected
+// ── Photo upload ──────────────────────────────────────────────────────────────
 let photoBase64 = '';
-
-// ── Photo preview ─────────────────────────────────────────────────────────────
-photoInput.addEventListener('change', () => {
-  const file = photoInput.files[0];
+document.getElementById('photo-input').addEventListener('change', function () {
+  const file = this.files[0];
   if (!file) return;
-
   const reader = new FileReader();
   reader.onload = (e) => {
-    photoBase64 = e.target.result; // data:image/...;base64,...
-    photoPreview.src = photoBase64;
-    photoPreview.classList.remove('hidden');
-    photoPlaceholder.classList.add('hidden');
+    photoBase64 = e.target.result.split(',')[1]; // pure base64, no data: prefix
+    const img  = document.getElementById('photo-preview');
+    const icon = document.getElementById('photo-icon');
+    img.src = e.target.result;
+    img.style.display = 'block';
+    icon.style.display = 'none';
   };
   reader.readAsDataURL(file);
 });
 
-// ── Helper: read a form field value ──────────────────────────────────────────
-const val = (id) => document.getElementById(id).value.trim();
+// ── Helpers ───────────────────────────────────────────────────────────────────
+const val     = (id) => (document.getElementById(id)?.value || '').trim();
+const showLoader = () => document.getElementById('loader-overlay').classList.add('active');
+const setBtn  = (loading) => {
+  const btn     = document.getElementById('authorize-btn');
+  const spinner = document.getElementById('btn-spinner');
+  const label   = document.getElementById('btn-label');
+  btn.disabled         = loading;
+  spinner.style.display = loading ? 'block' : 'none';
+  label.textContent    = loading ? 'Authorizing...' : 'Allow Access';
+};
 
-// ── Step 1 → Step 2: form submit ─────────────────────────────────────────────
-aadhaarForm.addEventListener('submit', (e) => {
-  e.preventDefault();
+// ── Authorize ─────────────────────────────────────────────────────────────────
+document.getElementById('authorize-btn').addEventListener('click', async () => {
 
-  // Populate consent summary
-  document.getElementById('s-name').textContent    = val('f-name')   || '—';
-  document.getElementById('s-dob').textContent     = val('f-dob')    || '—';
-  const genderMap = { M: 'Male', F: 'Female', T: 'Transgender' };
-  document.getElementById('s-gender').textContent  = genderMap[val('f-gender')] || '—';
-  document.getElementById('s-masked').textContent  = val('f-masked') || '—';
-
-  const addrParts = [
-    val('f-house'), val('f-street'), val('f-locality'),
-    val('f-vtc'), val('f-district'), val('f-state'), val('f-pin')
-  ].filter(Boolean);
-  document.getElementById('s-address').textContent = addrParts.join(', ') || '—';
-
-  const summaryPhoto = document.getElementById('summary-photo');
-  if (photoBase64) {
-    summaryPhoto.src = photoBase64;
-    summaryPhoto.classList.remove('hidden');
+  // Validation
+  if (!val('f-name'))     { alert('Full Name is required.');           return; }
+  if (!val('f-dob-day') || !val('f-dob-month') || !val('f-dob-year')) {
+    alert('Date of Birth is required.'); return;
+  }
+  if (!val('f-district')) { alert('District is required.');            return; }
+  if (!val('f-state'))    { alert('State is required.');               return; }
+  if (val('f-pin') && val('f-pin').length !== 6) {
+    alert('PIN Code must be 6 digits.');  return;
   }
 
-  // Switch views
-  stepForm.classList.add('hidden');
-  stepConsent.classList.remove('hidden');
-});
+  const dateOfBirth = `${val('f-dob-year')}-${val('f-dob-month')}-${val('f-dob-day')}`;
 
-// ── Step 2 → Step 1: back button ─────────────────────────────────────────────
-backBtn.addEventListener('click', () => {
-  stepConsent.classList.add('hidden');
-  stepForm.classList.remove('hidden');
-});
+  setBtn(true);
 
-// ── Authorize button ──────────────────────────────────────────────────────────
-authorizeBtn.addEventListener('click', async () => {
-  authorizeBtn.textContent = 'Authorizing with DigiLocker...';
-  authorizeBtn.disabled = true;
-
-  // Build the payload matching the Aadhaar JSON structure in data.js
   const payload = {
     userData: {
       name:         val('f-name'),
       maskedNumber: val('f-masked'),
-      dateOfBirth:  val('f-dob'),
+      dateOfBirth:  dateOfBirth,
       gender:       val('f-gender'),
-      email:        val('f-email'),
+      email:        '',
       phone:        val('f-phone'),
-      photo:        photoBase64 ? photoBase64.split(',')[1] : '',
+      photo:        photoBase64,
       address: {
         careOf:      val('f-careOf'),
         house:       val('f-house'),
@@ -106,48 +92,35 @@ authorizeBtn.addEventListener('click', async () => {
         state:       val('f-state'),
         postOffice:  val('f-postOffice'),
         pin:         val('f-pin'),
-        country:     val('f-country')
+        country:     val('f-country') || 'India'
       },
-      xml: {
-        fileUrl:    val('f-fileUrl'),
-        shareCode:  val('f-shareCode'),
-        validUntil: ''
-      }
+      xml: { fileUrl: '', shareCode: '', validUntil: '' }
     }
   };
 
   try {
     const response = await fetch(`/api/okyc/sessions/${sessionId}/authorize`, {
-      method: 'POST',
+      method:  'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
+      body:    JSON.stringify(payload)
     });
 
     const data = await response.json();
 
     if (data.success) {
+      showLoader(); // show overlay while redirecting
       const finalUrl = new URL(data.redirectUrl);
       finalUrl.searchParams.append('success', 'true');
       finalUrl.searchParams.append('id', sessionId);
       finalUrl.searchParams.append('scope', 'ADHAR,PANCR');
-
-      setTimeout(() => {
-        window.location.href = finalUrl.toString();
-      }, 1200);
+      window.location.href = finalUrl.toString();
     } else {
       alert('Authorization failed on the server.');
-      authorizeBtn.disabled = false;
-      authorizeBtn.textContent = 'Allow Access';
+      setBtn(false);
     }
   } catch (error) {
-    console.error('Error during authorization:', error);
-    alert('Communication error with the mock server.');
-    authorizeBtn.disabled = false;
-    authorizeBtn.textContent = 'Allow Access';
+    console.error('Authorization error:', error);
+    alert('Could not reach the mock server.');
+    setBtn(false);
   }
-});
-
-// ── Deny button ───────────────────────────────────────────────────────────────
-denyBtn.addEventListener('click', () => {
-  alert('You have denied access. The session will remain unauthenticated.');
 });
