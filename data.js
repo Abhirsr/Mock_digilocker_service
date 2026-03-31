@@ -46,19 +46,41 @@ const getStatusResponse = (sessionId, status = "unauthenticated") => {
 const getAadhaarResponse = (sessionId) => {
   return {
     id: sessionId,
-    status: "authenticated",
+    status: "complete",
     aadhaar: {
       name: "John Doe",
-      gender: "MALE",
-      dob: "1990-01-01",
-      address: "123, Mock Street, Electronic City, Bengaluru, Karnataka - 560100",
-      maskedAadhaar: "XXXXXXXX1234",
-      fatherName: "Senior Doe",
-      image: "base64_string_placeholder", // Setu provides the profile pic in base64
-      emailHash: "hashed_email_string",
-      mobileHash: "hashed_mobile_string"
-    },
-    fileUrl: "https://mock-storage.setu.co/aadhaar_xml_mock.xml" // Link to the raw XML file
+      maskedNumber: "XXXXXXXX1234",
+      dateOfBirth: "1990-01-01",
+      gender: "M",
+      email: "johndoe@mock.com",
+      phone: "9999999999",
+      generatedAt: new Date().toISOString(),
+      photo: "base64_string_placeholder",
+      address: {
+        careOf: "S/O Senior Doe",
+        house: "123",
+        street: "Mock Street",
+        landmark: "Near Mock Circle",
+        locality: "Electronic City",
+        vtc: "Bengaluru",
+        subDistrict: "Bengaluru South",
+        district: "Bengaluru Urban",
+        state: "Karnataka",
+        postOffice: "Electronic City PO",
+        pin: "560100",
+        country: "India"
+      },
+      verified: {
+        email: false,
+        phone: false,
+        signature: true
+      },
+      xml: {
+        fileUrl: "",
+        shareCode: "",
+        validUntil: ""
+      }
+    }
   };
 };
 
