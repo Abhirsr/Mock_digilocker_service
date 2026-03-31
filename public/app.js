@@ -52,7 +52,8 @@ aadhaarForm.addEventListener('submit', (e) => {
   // Populate consent summary
   document.getElementById('s-name').textContent    = val('f-name')   || '—';
   document.getElementById('s-dob').textContent     = val('f-dob')    || '—';
-  document.getElementById('s-gender').textContent  = val('f-gender') || '—';
+  const genderMap = { M: 'Male', F: 'Female', T: 'Transgender' };
+  document.getElementById('s-gender').textContent  = genderMap[val('f-gender')] || '—';
   document.getElementById('s-masked').textContent  = val('f-masked') || '—';
 
   const addrParts = [
@@ -92,7 +93,7 @@ authorizeBtn.addEventListener('click', async () => {
       gender:       val('f-gender'),
       email:        val('f-email'),
       phone:        val('f-phone'),
-      photo:        photoBase64,
+      photo:        photoBase64 ? photoBase64.split(',')[1] : '',
       address: {
         careOf:      val('f-careOf'),
         house:       val('f-house'),
